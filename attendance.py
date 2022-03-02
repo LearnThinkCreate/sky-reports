@@ -5,18 +5,46 @@ from config import sky
 from users import getAdvisors
 from academics import getEnrollments
 
+
 def getAttendance():
-    """ Legacy Function for use in Tableau """
     # Pulling attendance data
+    attendance = sky.getAdvancedList(os.environ.get('SID_AT'))
+    attendance = attendance.astype({"absenceTypeId":'int64'})
+    attendance.absence_date = pd.to_datetime(attendance.absence_date)
+
+    attendance = attendance[[
+        'absenceId', 'user_id', 'absenceType', 'absence_date',
+        'absenceTypeId', 'id', 'term_name', 'excuseDescription'
+    ]].rename(columns={
+        'absenceId':'id',
+        'absenceType':'absence_type',
+        'absenceTypeId':'absence_type_id',
+        'excuseDescription':'excuse_description',
+        'id':'section_id'
+    })
+
+    attendance = attendance.astype({'id':'int64'})
+
+    return attendance
+
+def getAttendanceCodes():
+    attendance_codes = sky.get('types/excusedtypes')
+    attendance_codes = attendance_codes[
+            ['category_description', 'excuse_type_id']
+            ].rename(columns={
+                'category_description':'name',
+                'excuse_type_id':'id'
+            })
+    return attendance_codes
+    
+def legacyAttendance():
     attendance = sky.getAdvancedList(os.environ.get('SID_AT'))
     attendance = attendance.astype({"absenceTypeId":'int64'})
     attendance.absence_date = pd.to_datetime(attendance.absence_date)
     return attendance
 
-
 def getAbsences():
-    """ Legacy function that is used for Tableau """
-    raw_attendance = getAttendance()
+    raw_attendance = legacyAttendance()
     
     # Filtering for absences
     attendance = raw_attendance.loc[raw_attendance.absenceTypeId == 6702, ].reset_index(drop=True)

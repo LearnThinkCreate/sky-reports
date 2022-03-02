@@ -1,9 +1,18 @@
-pandas
+gunicorn==19.3.0
+django-environ==0.8.1
+grpcio
 numpy
 authlib
 requests
-gspread
+pandas
+sqlalchemy
+cloud-sql-python-connector[pg8000]
+pg8000
 sky-api-python-client
-python-dotenv
-jinja2
+google-cloud-secret-manager
+Flask
+google-cloud-storage
+gspread
+matplotlib
+# jinja2
 # weezyprint

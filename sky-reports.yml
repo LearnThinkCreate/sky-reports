@@ -10,6 +10,7 @@ dependencies:
   - notebook
   - gspread
   - dash
+  - flask
   - pip
   - pip:
     - sky-api-python-client
@@ -19,3 +20,4 @@ dependencies:
     - django-environ
     - google-cloud-secret-manager
     - gspread_formating
+    - weezyprint

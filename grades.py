@@ -14,36 +14,12 @@ def getRawGrades(current=True):
     grades.last_updated = pd.to_datetime(grades.last_updated)
     return grades
 
-def getGradebookGrades():  
-    # Getting advisors
-    advisors = getAdvisors()
-    
-    # Getting the grades
-    grades = getRawGrades()
-
-    # Student Enrollments
-    enrollment = getEnrollments()
-
-    # Getting student grade levels by calling the sky api
-    full_grades = enrollment.merge(advisors).merge(grades, on=['user_id', 'section_id'], how='left')
-    
-    # Sorting data
-    full_grades = full_grades.sort_values(['lastname', 'firstname', 'block'])
-
-    # Adding full name column to data
-    full_grades['full_name'] = full_grades['lastname'] + ", " + full_grades['firstname']
-    
-    # Being a good boy
-    full_grades.fillna(0, inplace = True)
-    full_grades.reset_index(inplace = True, drop = True)
-    
-    return full_grades
-
+ 
 def getSemesterOneGrades():
 
     # Pulling the data from Blackbaud Advanced List
-    grades = sky.getAdvancedList(os.environ.get('SID_S1G'))[['user_id', 'course_code', 'grade', 'grade_plan',]]
-    comments = sky.getAdvancedList(os.environ.get('SID_S1C'))[['user_id', 'course_code', 'comment']]
+    grades = sky.getAdvancedList(os.environ.get('SID_S1G'))[['user_id', 'section_id', 'grade', 'grade_plan',]]
+    comments = sky.getAdvancedList(os.environ.get('SID_S1C'))[['user_id', 'section_id', 'comment']]
     enrollments = getEnrollments(False)
     # Pulling the students level descriptions
     students = sky.getAdvancedList(os.environ.get('SID_ST'))[ ['user_id', 'level_description', 'grade_level', 'advisor_id']]
@@ -67,7 +43,7 @@ def getSemesterOneGrades():
     semesterGrades = currentEnrollment.merge(
             reportcardGrades, 
             'left', 
-            on=['user_id','course_code']
+            on=['user_id','section_id']
         ).drop_duplicates()
 
     # Joining data
@@ -78,5 +54,37 @@ def getSemesterOneGrades():
     fullSemesterGrades.reset_index(inplace = True, drop = True)
     fullSemesterGrades.drop_duplicates(inplace=True)
 
+    fullSemesterGrades = fullSemesterGrades[[
+        'user_id', 'section_id', 'grade', 'grade_plan',
+        'course_code', 'course_title', 'department_name',
+        'teacher_last', 'teacher_first', 'teacher_id', 'term_name',
+        'comment'
+    ]].rename(columns={'term_name':'term'}).astype({'section_id':'int64', 'user_id':'int64'})
+
     return fullSemesterGrades
 
+
+def legacyGradeReport():
+    # Getting advisors
+    advisors = getAdvisors()
+    
+    # Getting the grades
+    grades = getRawGrades()
+
+    # Student Enrollments
+    enrollment = getEnrollments()
+
+    # Getting student grade levels by calling the sky api
+    full_grades = enrollment.merge(advisors).merge(grades, on=['user_id', 'section_id'], how='left')
+    
+    # Sorting data
+    full_grades = full_grades.sort_values(['lastname', 'firstname', 'block'])
+
+    # Adding full name column to data
+    full_grades['full_name'] = full_grades['lastname'] + ", " + full_grades['firstname']
+    
+    # Being a good boy
+    full_grades.fillna(0, inplace = True)
+    full_grades.reset_index(inplace = True, drop = True)
+    
+    return full_grades

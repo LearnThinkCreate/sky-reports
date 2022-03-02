@@ -1,13 +1,13 @@
 import time
 
-from academics import getAdvisingSections, getCourses, getEnrollments, getSections
+from academics import getAdvisingSections, getCourses, getEnrollments, getSections, eatSeafoodMedley
 from admissions import getCandidates, getContracts
-from attendance import getAbsences, getAttendance
+from attendance import getAbsences, getAttendance, legacyAttendance, getAttendanceCodes
 from config import sky
 from skydb.connections import GooglePsqlConnection
 # from course_request import 
 from google_sheets import HysonFireStyle
-from grades import getRawGrades, getGradebookGrades, getSemesterOneGrades
+from grades import getRawGrades, legacyGradeReport, getSemesterOneGrades
 from records import getOfficialRecords, getPsatScores
 from users import getAdvisors, getStudents, getTeachers
 

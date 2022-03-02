@@ -1,0 +1,41 @@
+cron:
+- description: "Update Users"
+  url: /users
+  schedule: every 1 hours from 08:05 to 18:05
+  timezone: EST
+- description: "Update Gradebook Grades"
+  url: /grades
+  schedule: every 1 hours from 08:10 to 18:10
+  timezone: EST
+- description: "Update Final Grdes"
+  url: /finalgrades
+  schedule: every day 00:30
+  timezone: EST
+- description: "Update Course Data"
+  url: /courses
+  schedule: every day 00:10
+  timezone: EST
+- description: "Update Enrollment Data"
+  url: /enrollment
+  schedule: every day 00:20
+  timezone: EST
+- description: "Update Attendance Data"
+  url: /attendance
+  schedule: every 1 hours from 08:15 to 16:15
+  timezone: EST
+- description: "Update Admisions Data"
+  url: /admissions
+  schedule: every 1 hours from 08:20 to 16:20
+  timezone: EST
+- description: "Updating Tableau Data"
+  url: /legacy
+  schedule: every 1 hours from 08:25 to 16:25 
+  timezone: EST
+- description: "Update Historic Grades"
+  url: /officalrecords
+  schedule: every day 00:00
+  timezone: EST
+- description: "Update Psat Scores"
+url: /testscores
+schedule: every sunday 01:00
+timezone: EST

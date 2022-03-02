@@ -1,9 +1,64 @@
+import os 
 import re
-import os
-import pandas as pd
 
+import pandas as pd
 from config import sky
 
+
+def eatSeafoodMedley():
+    # Getting enrollments from sky API
+    enrollments = sky.enrollmentMedley()
+
+    # Cleaning the academic enrollments 
+    enrollments['academics'].section_id = enrollments['academics'].section_id.astype('int64')
+    academic_enrollments = enrollments['academics']
+    academic_enrollments = academic_enrollments[[
+        'user_id', 'section_id', 'block_name', 'course_title',
+        'duration_name', 'department_name', 'faculty_first_name',
+        'faculty_last_name'
+    ]].rename(columns={
+        'block_name':'period',
+        'duration_name':'term',
+        'department_name':'department',
+        'faculty_first_name':"teacher_first",
+        'faculty_last_name':'teacher_last'
+    })
+
+    # Cleaning advisory enrollments
+    enrollments['advisory'].section_id = enrollments['advisory'].section_id.astype('int64')
+    advisory_enrollments = enrollments['advisory']
+    advisory_enrollments = advisory_enrollments[['user_id', 'section_id']]
+
+    # Cleaning athletic enrollments
+    enrollments['athletics'].section_id = enrollments['athletics'].section_id.astype('int64')
+    athletic_enrollments = enrollments['athletics']
+    athletic_enrollments = athletic_enrollments.rename(columns={
+        'course_title':'sport',
+        'faculty_first_name':'coach_first',
+        'faculty_last_name':'coach_last',
+        'duration_name':'season'
+    })
+
+    return {
+        "academic_enrollments":academic_enrollments,
+        "advisory_enrollments":advisory_enrollments,
+        "athletic_enrollments":athletic_enrollments
+    }
+
+def getCourses():
+    # Getting levels for merge with courses
+    levels = sky.getLevels()
+    levels = levels.rename(columns={'id':'level_num', 'name':'level_description'})
+    # Getting courses from BB
+    courses = sky.get('academics/courses')
+    # Cleaning data 
+    courses = courses.merge(levels)
+    courses = courses[[
+        'offering_id', 'course_code', 'course_title',
+        'level_description', 'course_length', 'inactive'
+    ]].astype({'inactive':"bool"}).rename(columns={'offering_id':'id'})
+
+    return courses
 
 def getSections():
     # Get sections from sky API
@@ -19,9 +74,6 @@ def getSections():
             })
 
     return sections.drop_duplicates().reset_index(drop=True)
-
-
-
 
 def getAdvisingSections():
     # Getting the school levels
@@ -75,24 +127,8 @@ def getAdvisingSections():
     return advising_section
 
 
-
-def getCourses():
-    # Getting levels for merge with courses
-    levels = sky.getLevels()
-    levels = levels.rename(columns={'id':'level_num', 'name':'level_description'})
-    # Getting courses from BB
-    courses = sky.get('academics/courses')
-    # Cleaning data 
-    courses = courses.merge(levels)
-    courses = courses[[
-        'offering_id', 'course_code', 'course_title',
-        'level_description', 'course_length', 'inactive'
-    ]].astype({'inactive':"bool"}).rename(columns={'offering_id':'id'})
-
-    return courses
-
 def getEnrollments(current=True):
-    raw_enrollment = sky.getAdvancedList(os.environ.get('SID_ENR'))
+    raw_enrollment = sky.getAdvancedList(73530)
     if not current:
         return raw_enrollment
     # Filtering for the current academic term
