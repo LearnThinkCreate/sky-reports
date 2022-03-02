@@ -1,0 +1,9 @@
+pandas
+numpy
+authlib
+requests
+gspread
+sky-api-python-client
+python-dotenv
+jinja2
+# weezyprint

@@ -1,0 +1,21 @@
+name: sky-reports
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - numpy
+  - authlib
+  - requests
+  - pandas
+  - notebook
+  - gspread
+  - dash
+  - pip
+  - pip:
+    - sky-api-python-client
+    - skydb
+    - weasyprint
+    - jinja2
+    - django-environ
+    - google-cloud-secret-manager
+    - gspread_formating
