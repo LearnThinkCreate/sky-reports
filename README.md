@@ -1,39 +1,23 @@
-# Python Sky Academic Reports
-
-Python scripts to pull data from Blackbaud via the Sky API and upload into Google Sheets
+# Sky Academic Reports
 
 # About
 
-This repository is an example of how the [sky-api-python-client](https://github.com/LearnThinkCreate/sky-api-python-client) can be used in conjunction with Google Sheets to provide dynamic reporting for your school. 
+This repository uses the [sky-api-python-client](https://github.com/LearnThinkCreate/sky-api-python-client) and [skydb](https://github.com/LearnThinkCreate/sky-database) libraries to maintain Tampa Preparatory's school's data infrastructure.
 
-The output are 2 Google Sheets
-1. Sky Grades
-    1. The grades of every student in the school for the current term
-    2. This is used in a Tableau Dashboard in order to provide advisors a easy way to see all Students grades
-2. Sky Attendance
-    1. The number of absences for every student in each of their classes
-    2. This is also used in a Tableau Dashboard so Admin and advisors can see students attendance at a glance
+# Goals 
+
+1. Keep Google Cloud SQL database updated 
+2. Update Google Sheets for use in Tableau Dashboards 
+3. Update Blackbaud Data directly using the Sky API
 
 
-``` Python
-from utils import *
+# Configuration
 
-# Updating gradebook grades spreadsheet
-grades = getGradebookGrades()
-updateSpreadsheet(grades, sheet_name = "Sky Grades")
+- [cloud sql](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/cloud_sql.md)
+- [google secret manager](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/google_secrets_manager.md)
+- [app_engine](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/app_engine.md)
 
-# Updating absences spreadsheet
-absences = getAbsences()
-updateSpreadsheet(absences, sheet_name="Sky Attendance")
-
-```
-
-Note: Tampa Prep has used Gsuite for years so the integration with Google Sheets was done in order to maximize convenience and cost. However, another data solution could easily be integrated if that's what suits your school's needs.
-
-
-# Under the Hood
-
-## [Utilities](https://github.com/LearnThinkCreate/python-sky-reports/blob/main/utils.py)
+# Advanced List
 
 While all the REST endpoints provided by Blackbaud are helpful, the one that I've utilized most has been the [Advanced List Endpoint](https://developer.sky.blackbaud.com/docs/services/school/operations/V1ListsAdvancedByList_idGet). 
 
@@ -43,95 +27,150 @@ Core Advanced Lists are important for a few reasons:
 
 In the future I think it would be incredibly beneficial if developers could create Advanced List templates and share them out to the community. 
 
-In the `utils.py` file there are 5 helper functions that all use the `sky.Sky.getAdvancedList` function in some way - `getAdvisors`. `getGradebookGrades`, `getEnrollments`, `getAttendance`, and `getAbsences`.
+The most helpful use case for advanced list, in my experience, has been to pull current and historic grades. Both [grades.py](https://github.com/LearnThinkCreate/sky-reports/blob/main/grades.py) & [records.py](https://github.com/LearnThinkCreate/sky-reports/blob/main/records.py) are examples of this
 
-Some sample code:
+Sample from grades.py:
 ``` Python
-import numpy as np
-import re
+import os
+import pandas as pd
 
-from sky import Sky
-from dotenv import load_dotenv
-from skydb.sheets import *
+from config import sky
 
-load_dotenv()
-sky = Sky(file_path='credentials/sky_credentials.json')
-
-def getAttendance():
-    # Pulling attendance data
-    attendance = sky.getAdvancedList(0000)
-
-    # Being a good boy
-    attendance = attendance.astype({
-        "user_id":'int64',
-        "absenceTypeId":'int64'
-    })
-
-
-    return attendance
-
-def getEnrollments():
-    # Pulling all grades from the current school year
-    grades = sky.getAdvancedList(0000)
-
-    academicEnrollment = grades[[
-        'user_id',
-        'firstname',
-        'lastname', 
-        'course_title', 
-        'course_code', 
-        'term_name',
-        'block',
-        'teacher_first',
-        'teacher_last',
-        'department_name',
-        'advisor_id'
-    ]].astype({
-        "user_id":'int64'
-    })
-
-    return academicEnrollment
+def getRawGrades(current=True):
+    """ Returns pd.DataFrame with student's current grades from the teacher's gradebooks  """
+    # Reading advanced list SID from a environment variable
+    raw_grades = sky.getAdvancedList(os.environ.get('SID_RG'))
+    if not current:
+        # Returning grades for the whole year
+        return raw_grades
+    # Filtering for the current acadmeic turn
+    grades = raw_grades[raw_grades.term.isin(sky.getTerm(active=True))].reset_index(drop=True)
+    grades.last_updated = pd.to_datetime(grades.last_updated)
+    return grades
 ```
 
-## [Google Sheets](https://github.com/LearnThinkCreate/sky-database/blob/main/src/skydb/sheets/google_sheets.py)
+# Main.py
 
-Inspired by [this guide](https://levelup.gitconnected.com/python-pandas-google-spreadsheet-476bd6a77f2b) on using pandas and gspread, this script provides 3 helper functions that make working with Google Sheets really easy -- `readSpreadsheet`, `updateSpreadsheet`, and `createSpreadsheet`. 
+In order to keep the cloud sql database updated I've decided to create a flask app that runs on Google App Engine and is updated by Google Cloud Scheduler.
 
-These functions are really just convenient wrappers around the [gspread library](https://docs.gspread.org/en/latest/oauth2.html). I highly recommend checking out these resources if you'd like to use Google Sheets and Python as a part of your schools reporting solution 
-
-Some sample code:
+**Importing functions**
 ``` Python
-import pandas as pd
+# All helper functions
+from utils import *
+# Classes and tables defined in skdb
+from skydb.classes import *
+from skydb.sheets import updateSpreadsheet
+from skydb.update import updateTable
+```
+
+**Loading Token from cloud storage**
+``` Python
+from google.cloud import storage
+
+app = Flask(__name__)
+
+# Loading the api token
+storage_client = storage.Client()
+bucket = storage_client.bucket('sky-api-326214.appspot.com')
+BLOB = bucket.blob('.sky-token')
+# Storing token in a tmp folder where it will be updated after each api call
+BLOB.download_to_filename('/tmp/.sky-token')
+```
+
+**Defining routes to update data**
+``` Python
+@app.route('/users')
+def updateUsers():
+    pairs = {
+        "Student":{
+            'class':Student,
+            'function':getStudents,
+            'table_type':'Normal'
+        },
+        "Teacher":{
+            'class':Teacher,
+            'function':getTeachers,
+            'table_type':'Normal'
+        }
+    }
+    for table in pairs.values():
+        updateTable(
+            db_class = table['class'], 
+            data = table.get('data'), 
+            data_function = table.get('function'), 
+            table_type=table['table_type']
+            )
+
+    BLOB.upload_from_filename('/tmp/.sky-token')
+    return "Hello Users"')
+```
+
+**Updating Google Sheets for use in Tableau**
+``` Python
+@app.route('/legacy')
+def updateSpreadSheets():
+    grades = legacyGradeReport()
+    absences = getAbsences().reset_index()
+    updateSpreadsheet(grades.astype(str), sheet_name = "Sky Grades")
+    updateSpreadsheet(absences.astype(str), sheet_name="Sky Attendance")
+    # Saving the token to Google Cloud Storage
+    BLOB.upload_from_filename('/tmp/.sky-token')
+    return "Hello new spreadsheet data"
+```
+[**check out cron.yaml to see how cloud scheduler updates the data**](https://github.com/LearnThinkCreate/sky-reports/blob/main/cron.yaml)
+
+# Ad-Hoc Reporting
+
+**Providing science teachers the data they need to make student course recommendations**
+``` Python
 import gspread
+from utils import *
+from skydb.sheets import updateSpreadsheet, createSpreadsheet
 
-def readSpreadsheet(
-    sheet_name = None,
-    sheet_id = None,
-    tab_index = 0,
-    ):
+# Getting official records
+records = getOfficialRecords()
+grades = records['grades']
+gpas = records['gpas']
+students = getStudents().drop(['birth_date'], axis=1)
+psat_scores = getPsatScores()
 
-    gc = gspread.service_account()
+""" PSAT Scores """
+psat_students = (
+    students
+    .query("""grade_level in [9,10,11]""")
+    .drop('counselor', axis=1)
+    .rename(columns={'id':'user_id'})
+    .astype({'user_id':'int64', 'student_id':'float', 'grade_level':'int64'})
+    .merge(psat_scores,
+                'left',
+                on='user_id'
+    )
+)
 
-    if sheet_name:
-        gc = gc.open(sheet_name)
-    else:
-        gc = gc.open_by_key(sheet_id)
+""" Cumulative GPA """
+gpa_students = (
+    psat_students
+    .merge(gpas,
+           'inner',
+           on='user_id'
+    )
+)
 
-    values = gc.get_worksheet(tab_index).get_all_values()
+### Some data cleaning ...
 
-    df = pd.DataFrame(values)
-    df.columns = df.iloc[0]
-    df.drop(df.index[0], inplace=True)         
-    
-    return df
+""" Joining with student Data """
+science_data = (
+    gpa_students
+    .merge(clean_science_students,
+           'inner',
+           on='user_id'
+    )
+    .sort_values(['last_name', 'first_name'])
+    .drop(['user_id', 'student_id', 'first_name'], axis=1)
+)
 
-def createSpreadsheet(sheet_name, df):
-    gc = gspread.service_account()
-
-    sheet = gc.create(sheet_name)
-    sheet.share("whyson@tampaprep.org", perm_type='user', role="writer")
-
-    ## Inserting the df
-    updateSpreadsheet(df, sheet_id=sheet.id)
-    return sheet
+updateSpreadsheet(science_data.fillna(''), 
+                   sheet_id='1yf0CHCaG39S7gL65YOOVrPNgIqVyluC4fT1frQkSGRo',
+                   styleClass=HysonFireStyle
+                  )
 ```
