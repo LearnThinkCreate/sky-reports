@@ -1,23 +1,23 @@
 # Sky Academic Reports
 
-# About
+## About
 
 This repository uses the [sky-api-python-client](https://github.com/LearnThinkCreate/sky-api-python-client) and [skydb](https://github.com/LearnThinkCreate/sky-database) libraries to maintain Tampa Preparatory's school's data infrastructure.
 
-# Goals 
+## Goals 
 
 1. Keep Google Cloud SQL database updated 
 2. Update Google Sheets for use in Tableau Dashboards 
 3. Update Blackbaud Data directly using the Sky API
 
 
-# Configuration
+## Configuration
 
 - [cloud sql](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/cloud_sql.md)
 - [google secret manager](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/google_secrets_manager.md)
 - [app_engine](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/app_engine.md)
 
-# Advanced List
+## Advanced List
 
 While all the REST endpoints provided by Blackbaud are helpful, the one that I've utilized most has been the [Advanced List Endpoint](https://developer.sky.blackbaud.com/docs/services/school/operations/V1ListsAdvancedByList_idGet). 
 
@@ -49,7 +49,7 @@ def getRawGrades(current=True):
     return grades
 ```
 
-# Main.py
+## Main.py
 
 In order to keep the cloud sql database updated I've decided to create a flask app that runs on Google App Engine and is updated by Google Cloud Scheduler.
 
@@ -119,7 +119,7 @@ def updateSpreadSheets():
 ```
 [**check out cron.yaml to see how cloud scheduler updates the data**](https://github.com/LearnThinkCreate/sky-reports/blob/main/cron.yaml)
 
-# Ad-Hoc Reporting
+## Ad-Hoc Reporting
 
 **Providing science teachers the data they need to make student course recommendations**
 ``` Python
