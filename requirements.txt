@@ -9,6 +9,7 @@ sqlalchemy
 cloud-sql-python-connector[pg8000]
 pg8000
 sky-api-python-client
+skydb
 google-cloud-secret-manager
 Flask
 google-cloud-storage
