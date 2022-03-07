@@ -67,7 +67,7 @@ def getSemesterGrades(semester="s1"):
     fullSemesterGrades =(fullSemesterGrades[[
         'first_name', 'last_name', 'grade_level', 'section_id', 'grade', 
         'grade_plan',  'course_code', 'course_title', 'department_name',
-        'teacher_last', 'term_name', 'comment', 
+        'teacher_last', 'term_name', 'comment', 'level_description',
         'Section', 'advisor_first', 'advisor_last'
         ]]
         .rename(columns={
