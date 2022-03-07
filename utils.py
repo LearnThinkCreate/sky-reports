@@ -7,7 +7,7 @@ from config import sky
 from skydb.connections import GooglePsqlConnection
 # from course_request import 
 from google_sheets import HysonFireStyle
-from grades import getRawGrades, legacyGradeReport, getSemesterOneGrades
+from grades import getRawGrades, legacyGradeReport, getSemesterGrades
 from records import getOfficialRecords, getPsatScores
 from users import getAdvisors, getStudents, getTeachers
 

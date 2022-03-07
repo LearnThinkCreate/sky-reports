@@ -36,6 +36,10 @@ cron:
   schedule: every day 00:00
   timezone: EST
 - description: "Update Psat Scores"
-url: /testscores
-schedule: every sunday 01:00
-timezone: EST
+  url: /testscores
+  schedule: every sunday 01:00
+  timezone: EST
+- description: "Update Psat Scores"
+  url: /ms2-grades
+  schedule: every 1 hours from 08:30 to 18:30
+  timezone: EST

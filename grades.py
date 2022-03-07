@@ -15,29 +15,41 @@ def getRawGrades(current=True):
     return grades
 
  
-def getSemesterOneGrades():
+def getSemesterGrades(semester="s1"):
 
-    # Pulling the data from Blackbaud Advanced List
-    grades = sky.getAdvancedList(os.environ.get('SID_S1G'))[['user_id', 'section_id', 'grade', 'grade_plan',]]
-    comments = sky.getAdvancedList(os.environ.get('SID_S1C'))[['user_id', 'section_id', 'comment']]
+    # Getting student Enrollment
     enrollments = getEnrollments(False)
+
     # Pulling the students level descriptions
     students = sky.getAdvancedList(os.environ.get('SID_ST'))[ ['user_id', 'level_description', 'grade_level', 'advisor_id']]
+   
+
     # Pulling advisors for Tableau sorting
     advisors = getAdvisors()
     advisors.Section = advisors.Section.str.replace(' ', '')
+
+
+    # Pulling the data from Blackbaud Advanced List
+    if semester == "s1":
+        # Pulling s1 grades & comments
+        grades = sky.getAdvancedList(os.environ.get('SID_S1G'))[['user_id', 'section_id', 'grade', 'grade_plan',]]
+        comments = sky.getAdvancedList(os.environ.get('SID_S1C'))[['user_id', 'section_id', 'comment']]
+        
+        # Getting the enrollments for the fall term
+        currentEnrollment = enrollments[enrollments.term_name == 'Fall Semester']
+    elif semester == "ms2":
+        # Pulling s1 grades & comments
+        grades = sky.getAdvancedList(74335)[['user_id', 'section_id', 'grade', 'grade_plan',]]
+        comments = sky.getAdvancedList(74336)[['user_id', 'section_id', 'comment']]
+        
+        # Getting the enrollments for the fall term
+        currentEnrollment = enrollments[enrollments.term_name == 'Spring Semester']   
 
     # Filtering the RC data for Semester 1 grades
     reportcardGrades = grades.merge(
             comments,
             'left'
         )
-
-    # Getting the enrollments for the fall term
-    currentEnrollment = enrollments[enrollments.term_name == 'Fall Semester']
-
-    # Getting Enrollment for the current term
-    # currentEnrollment = enrollments[enrollments.term_name == sky.getTerm(active=True).values[0]]
 
     # Adding the Semester 1 grades to the current Enrollments
     semesterGrades = currentEnrollment.merge(

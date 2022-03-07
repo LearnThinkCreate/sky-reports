@@ -85,7 +85,7 @@ def updateOfficalRecords():
 
 @app.route('/finalgrades')
 def updateSemesterGrades():
-    updateTable(db_class=FinalGrades, data_function=getSemesterOneGrades, table_type="FinalGrades")
+    updateTable(db_class=FinalGrades, data_function=getSemesterGrades, table_type="FinalGrades")
     BLOB.upload_from_filename('/tmp/.sky-token')
     return "Hello New Final Grades"
 
@@ -219,6 +219,16 @@ def updateSpreadSheets():
     BLOB.upload_from_filename('/tmp/.sky-token')
     return "Hello new spreadsheet data"
 
+@app.route('/ms2-grades')
+def updateSpreadSheets():
+    ms2 = getSemesterGrades('ms2')
+    updateSpreadsheet(ms2, 
+                    sheet_id='1kE8btksO6e0wUs_ep_YjwrP3pXsWrNgsHyhvkowuXEQ', 
+                    styleClass=HysonFireStyle,
+                    )
+    # Saving the token to Google Cloud Storage
+    BLOB.upload_from_filename('/tmp/.sky-token')
+    return "Hello new ms2 spreadsheet data"
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
