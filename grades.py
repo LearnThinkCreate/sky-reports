@@ -64,12 +64,18 @@ def getSemesterGrades(semester="s1"):
     fullSemesterGrades.reset_index(inplace = True, drop = True)
     fullSemesterGrades.drop_duplicates(inplace=True)
 
-    fullSemesterGrades = fullSemesterGrades[[
-        'user_id', 'first_name', 'last_name', 'section_id', 'grade', 
+    fullSemesterGrades =(fullSemesterGrades[[
+        'first_name', 'last_name', 'grade_level', 'section_id', 'grade', 
         'grade_plan',  'course_code', 'course_title', 'department_name',
-        'teacher_last', 'teacher_first', 'teacher_id', 'term_name',
-        'comment'
-    ]].rename(columns={'term_name':'term'}).astype({'section_id':'int64', 'user_id':'int64'})
+        'teacher_last', 'term_name', 'comment', 
+        'Section', 'advisor_first', 'advisor_last'
+        ]]
+        .rename(columns={
+            'term_name':'term',
+            'teacher_last':'Teacher'
+            })
+        .astype({'section_id':'int64'})
+    )
 
     return fullSemesterGrades
 
