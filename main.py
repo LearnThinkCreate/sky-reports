@@ -214,7 +214,7 @@ def updateSpreadSheets():
     return "Hello new spreadsheet data"
 
 @app.route('/ms2-grades')
-def updateSpreadSheets():
+def updateSemesterGrades():
     ms2 = getSemesterGrades('ms2')
     updateSpreadsheet(ms2, 
                     sheet_id='1kE8btksO6e0wUs_ep_YjwrP3pXsWrNgsHyhvkowuXEQ', 

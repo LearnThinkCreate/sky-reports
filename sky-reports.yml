@@ -19,5 +19,5 @@ dependencies:
     - jinja2
     - django-environ
     - google-cloud-secret-manager
-    - gspread_formating
+    - gspread-formatting
     - weezyprint

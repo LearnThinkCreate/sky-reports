@@ -15,5 +15,6 @@ Flask
 google-cloud-storage
 gspread
 matplotlib
+gspread-formatting
 # jinja2
 # weezyprint
