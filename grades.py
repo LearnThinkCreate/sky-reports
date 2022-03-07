@@ -21,13 +21,11 @@ def getSemesterGrades(semester="s1"):
     enrollments = getEnrollments(False)
 
     # Pulling the students level descriptions
-    students = sky.getAdvancedList(os.environ.get('SID_ST'))[ ['user_id', 'level_description', 'grade_level', 'advisor_id']]
+    students = sky.getAdvancedList(os.environ.get('SID_ST'))[ ['user_id', 'level_description', 'grade_level', 'advisor_id', 'first_name', 'last_name']]
    
-
     # Pulling advisors for Tableau sorting
     advisors = getAdvisors()
     advisors.Section = advisors.Section.str.replace(' ', '')
-
 
     # Pulling the data from Blackbaud Advanced List
     if semester == "s1":
@@ -67,8 +65,8 @@ def getSemesterGrades(semester="s1"):
     fullSemesterGrades.drop_duplicates(inplace=True)
 
     fullSemesterGrades = fullSemesterGrades[[
-        'user_id', 'section_id', 'grade', 'grade_plan',
-        'course_code', 'course_title', 'department_name',
+        'user_id', 'first_name', 'last_name', 'section_id', 'grade', 
+        'grade_plan',  'course_code', 'course_title', 'department_name',
         'teacher_last', 'teacher_first', 'teacher_id', 'term_name',
         'comment'
     ]].rename(columns={'term_name':'term'}).astype({'section_id':'int64', 'user_id':'int64'})
