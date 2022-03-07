@@ -7,10 +7,6 @@ cron:
   url: /grades
   schedule: every 1 hours from 08:10 to 18:10
   timezone: EST
-- description: "Update Final Grdes"
-  url: /finalgrades
-  schedule: every day 00:30
-  timezone: EST
 - description: "Update Course Data"
   url: /courses
   schedule: every day 00:10

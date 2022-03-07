@@ -83,12 +83,6 @@ def updateOfficalRecords():
     BLOB.upload_from_filename('/tmp/.sky-token')
     return "Hello new Student Record Data"
 
-@app.route('/finalgrades')
-def updateSemesterGrades():
-    updateTable(db_class=FinalGrades, data_function=getSemesterGrades, table_type="FinalGrades")
-    BLOB.upload_from_filename('/tmp/.sky-token')
-    return "Hello New Final Grades"
-
 @app.route('/courses')
 def updateCourses():
     pairs = {
