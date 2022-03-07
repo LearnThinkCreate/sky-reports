@@ -13,9 +13,9 @@ This repository uses the [sky-api-python-client](https://github.com/LearnThinkCr
 
 ## Configuration
 
-- [cloud sql](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/cloud_sql.md)
-- [google secret manager](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/google_secrets_manager.md)
-- [app_engine](https://github.com/LearnThinkCreate/sky-reports/blob/main/docs/app_engine.md)
+- [cloud sql](https://cloud.google.com/python/django/run#setup-sql)
+- [google secret manager](https://cloud.google.com/python/django/run#store-secret-values-in-secret-manager)
+- [app_engine](https://cloud.google.com/appengine/docs/standard/python3/quickstart)
 
 ## Advanced List
 
