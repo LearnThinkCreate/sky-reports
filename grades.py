@@ -15,7 +15,7 @@ def getRawGrades(current=True):
     return grades
 
  
-def getSemesterGrades(semester="s1"):
+def getSemesterGrades(semester="S1", report=False):
 
     # Getting student Enrollment
     enrollments = getEnrollments(False)
@@ -28,14 +28,14 @@ def getSemesterGrades(semester="s1"):
     advisors.Section = advisors.Section.str.replace(' ', '')
 
     # Pulling the data from Blackbaud Advanced List
-    if semester == "s1":
+    if semester == "S1":
         # Pulling s1 grades & comments
         grades = sky.getAdvancedList(os.environ.get('SID_S1G'))[['user_id', 'section_id', 'grade', 'grade_plan',]]
         comments = sky.getAdvancedList(os.environ.get('SID_S1C'))[['user_id', 'section_id', 'comment']]
         
         # Getting the enrollments for the fall term
         currentEnrollment = enrollments[enrollments.term_name == 'Fall Semester']
-    elif semester == "ms2":
+    elif semester == "MS2":
         # Pulling s1 grades & comments
         grades = sky.getAdvancedList(74335)[['user_id', 'section_id', 'grade', 'grade_plan',]]
         comments = sky.getAdvancedList(74336)[['user_id', 'section_id', 'comment']]
@@ -68,7 +68,7 @@ def getSemesterGrades(semester="s1"):
         'first_name', 'last_name', 'grade_level', 'section_id', 'grade', 
         'grade_plan',  'course_code', 'course_title', 'department_name',
         'teacher_last', 'term_name', 'comment', 'level_description',
-        'Section', 'advisor_first', 'advisor_last'
+        'Section', 'advisor_first', 'advisor_last', 'user_id', 'block'
         ]]
         .rename(columns={
             'term_name':'term',
@@ -77,7 +77,23 @@ def getSemesterGrades(semester="s1"):
         .astype({'section_id':'int64'})
     )
 
-    return fullSemesterGrades
+    if report:
+        slim_grades = fullSemesterGrades.sort_values(['grade_level', 'last_name', 'first_name', 'block'])
+        slim_grades = (
+            slim_grades
+            .assign(Student=lambda x: x['last_name'] + ', ' + x['first_name'])
+            .rename(columns={
+                'advisor_last':'Advisor',
+                'course_title':'Course',
+                'grade':"Grade"
+            })
+            [[
+                'Student', 'Advisor', 'Course',
+                'Teacher', 'Grade', 'level_description', 'user_id'
+            ]]
+            )
+        return slim_grades
+    return fullSemesterGrades.sort_values('user_id')
 
 
 def legacyGradeReport():
