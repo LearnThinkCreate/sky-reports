@@ -93,7 +93,7 @@ def getSemesterGrades(semester="S1", report=False):
                 'user_id'
             ]]
             )
-        return slim_grades
+        return slim_grades.drop_duplicates()
     return fullSemesterGrades.sort_values('user_id')
 
 
