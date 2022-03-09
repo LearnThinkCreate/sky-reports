@@ -4,12 +4,14 @@ from academics import getAdvisingSections, getCourses, getEnrollments, getSectio
 from admissions import getCandidates, getContracts
 from attendance import getAbsences, getAttendance, legacyAttendance, getAttendanceCodes
 from config import sky
-from skydb.connections import GooglePsqlConnection
+from eos import updateEosReport
 # from course_request import 
 from google_sheets import HysonFireStyle
 from grades import getRawGrades, legacyGradeReport, getSemesterGrades
 from records import getOfficialRecords, getPsatScores
 from users import getAdvisors, getStudents, getTeachers
+
+from skydb.connections import GooglePsqlConnection
 
 def timeFunction(func,  *args, **kwargs):
     start = time.time()

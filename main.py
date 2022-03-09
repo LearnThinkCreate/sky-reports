@@ -220,6 +220,7 @@ def updateSemesterGrades():
                     sheet_id='1kE8btksO6e0wUs_ep_YjwrP3pXsWrNgsHyhvkowuXEQ', 
                     styleClass=HysonFireStyle,
                     )
+    updateEosReport()
     # Saving the token to Google Cloud Storage
     BLOB.upload_from_filename('/tmp/.sky-token')
     return "Hello new ms2 spreadsheet data"
