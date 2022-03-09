@@ -6,9 +6,13 @@ from skydb.sheets import createSpreadsheet, updateSpreadsheet
 from skydb.sheets.google_sheets import _get_gc
 
 
-def filterGradeData(grade_data, level_description='UpperSchool'):
+def filterGradeData(grade_data, level_description='Upper School'):
     data = grade_data.loc[grade_data.level_description == level_description]
-    data = data.drop('level_description', axis=1)
+    if level_description == 'Upper School':
+        pass
+    elif level_description == "Middle School":
+        data = data.sort_values(['grade_level', 'Advisor', 'Student'])
+    data = data.drop(['level_description', 'grade_level'], axis=1)
     return data
 
 def createEosReport(report_type='S1', level_description="All"):

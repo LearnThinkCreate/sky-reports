@@ -89,7 +89,8 @@ def getSemesterGrades(semester="S1", report=False):
             })
             [[
                 'Student', 'Advisor', 'Course',
-                'Teacher', 'Grade', 'level_description', 'user_id'
+                'Teacher', 'Grade', 'level_description', 'grade_level', 
+                'user_id'
             ]]
             )
         return slim_grades
