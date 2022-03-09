@@ -215,7 +215,7 @@ def updateSpreadSheets():
 
 @app.route('/ms2-grades')
 def updateSemesterGrades():
-    ms2 = getSemesterGrades('ms2')
+    ms2 = getSemesterGrades('MS2')
     updateSpreadsheet(ms2, 
                     sheet_id='1kE8btksO6e0wUs_ep_YjwrP3pXsWrNgsHyhvkowuXEQ', 
                     styleClass=HysonFireStyle,
