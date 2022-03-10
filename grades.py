@@ -41,6 +41,12 @@ def getSemesterGrades(semester="S1", report=False):
         comments = sky.getAdvancedList(74336)[['user_id', 'section_id', 'comment']]
         
         # Getting the enrollments for the fall term
+        currentEnrollment = enrollments[enrollments.term_name == 'Spring Semester'] 
+    elif semester == "S2":
+        # Pulling s1 grades & comments
+        grades = sky.getAdvancedList(74372)[['user_id', 'section_id', 'grade', 'grade_plan',]]
+        comments = sky.getAdvancedList(74371)[['user_id', 'section_id', 'comment']]
+        # Getting the enrollments for the fall term
         currentEnrollment = enrollments[enrollments.term_name == 'Spring Semester']   
 
     # Filtering the RC data for Semester 1 grades
