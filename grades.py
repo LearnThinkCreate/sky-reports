@@ -85,11 +85,12 @@ def getSemesterGrades(semester="S1", report=False):
             .rename(columns={
                 'advisor_last':'Advisor',
                 'course_title':'Course',
-                'grade':"Grade"
+                'grade':"Grade",
+                'grade_level':'GradeLevel'
             })
             [[
-                'Student', 'Advisor', 'Course',
-                'Teacher', 'Grade', 'level_description', 'grade_level', 
+                'GradeLevel', 'Student', 'Advisor', 'Course',
+                'Teacher', 'Grade', 'level_description',  
                 'user_id'
             ]]
             )

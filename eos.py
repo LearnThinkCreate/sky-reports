@@ -1,4 +1,3 @@
-
 from grades import getSemesterGrades
 from google_sheets import HysonFireStyle, hideBody, applyAlternatingColors, clearAlternatingColors
 
@@ -9,10 +8,10 @@ from skydb.sheets.google_sheets import _get_gc
 def filterGradeData(grade_data, level_description='Upper School'):
     data = grade_data.loc[grade_data.level_description == level_description]
     if level_description == 'Upper School':
-        pass
+        data = data.drop(['level_description'], axis=1)
     elif level_description == "Middle School":
-        data = data.sort_values(['grade_level', 'Advisor', 'Student'])
-    data = data.drop(['level_description', 'grade_level'], axis=1)
+        data = data.sort_values(['GradeLevel', 'Advisor', 'Student'])
+        data = data.drop(['level_description', 'GradeLevel'], axis=1)
     return data
 
 def createEosReport(report_type='S1', level_description="All"):
@@ -36,7 +35,7 @@ def createEosReport(report_type='S1', level_description="All"):
                                      )
             
             # Hiding the user_id field
-            sheet.batch_update(hideBody(start=len(data.columns) - 1))
+            sheet.batch_update(hideBody(start=len(data.columns) - 1), end=len(data.columns))
             worksheet = sheet.sheet1
             applyAlternatingColors(data, worksheet)
             
@@ -48,7 +47,7 @@ def createEosReport(report_type='S1', level_description="All"):
                                       styleClass=HysonFireStyle
                                      )
             # Hiding the user_id field
-            sheet.batch_update(hideBody(start=len(data.columns) - 1))
+            sheet.batch_update(hideBody(start=len(data.columns) - 1), end=len(data.columns))
             worksheet = sheet.sheet1
             applyAlternatingColors(data, worksheet)
             print(f"MS Sheet ID is {sheet.id}")
