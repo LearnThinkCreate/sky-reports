@@ -37,5 +37,5 @@ cron:
   timezone: EST
 - description: "Update MS2 Scores"
   url: /ms2-grades
-  schedule: every 1 hours from 05:30 to 18:30
+  schedule: every 10 mins from 05:30 to 18:30
   timezone: EST
