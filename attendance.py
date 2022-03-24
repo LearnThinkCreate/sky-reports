@@ -85,5 +85,6 @@ def getAbsences():
     absenceList = absenceList.assign(absences = absenceList.absences / absenceList.num_teachers)
 
     absenceList.reset_index(inplace = True, drop=True)
-
+    
+    absenceList.drop_duplicates(inplace = True)
     return absenceList
