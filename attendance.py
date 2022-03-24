@@ -61,7 +61,7 @@ def getAbsences():
     academicEnrollment = getEnrollments()
     
     # Joining with the attendance data
-    absenceList = academicEnrollment.merge(attendance,'left') .merge(getAdvisors(),'inner')
+    absenceList = academicEnrollment.drop('department_name', axis=1).merge(attendance,'left') .merge(getAdvisors(),'inner')
 
     # Adding a Full Name Column
     absenceList['full_name'] = absenceList['lastname'] + ", " + absenceList['firstname']
@@ -84,6 +84,6 @@ def getAbsences():
     # Removing duplicates from the absence calculation
     absenceList = absenceList.assign(absences = absenceList.absences / absenceList.num_teachers)
 
-    absenceList.reset_index(inplace = True)
+    absenceList.reset_index(inplace = True, drop=True)
 
     return absenceList
